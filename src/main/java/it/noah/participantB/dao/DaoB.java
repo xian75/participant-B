@@ -47,6 +47,13 @@ public class DaoB {
         );
     }
 
+    public Uni<List<EntityB>> logicallyDeleteB(String uuid, OffsetDateTime expire, Long entityAId) {
+        return client.withTransaction(conn -> daoUtils.getResultList(log, conn, EntityB.FIND_ALL_BY_ENTITY_A,
+                new Object[]{entityAId}, new EntityB())
+                .chain(items -> daoUtils.logicallyRemove(log, conn, uuid, expire, items))
+        );
+    }
+
     public Uni<List<EntityB>> updateB(String uuid, OffsetDateTime expire, Long entityAId, String titlePrefix) {
         return client.withTransaction(conn -> daoUtils.getResultList(log, conn, EntityB.FIND_ALL_BY_ENTITY_A,
                 new Object[]{entityAId}, new EntityB())
@@ -59,6 +66,21 @@ public class DaoB {
                         news.put(oldB.getId(), newB);
                     }
                     return daoUtils.merge(log, conn, uuid, expire, olds, news);
+                }));
+    }
+
+    public Uni<List<EntityB>> updateArchivingB(String uuid, OffsetDateTime expire, Long entityAId, String titlePrefix) {
+        return client.withTransaction(conn -> daoUtils.getResultList(log, conn, EntityB.FIND_ALL_BY_ENTITY_A,
+                new Object[]{entityAId}, new EntityB())
+                .chain(olds -> {
+                    Map<Long, EntityB> news = new HashMap<>();
+                    for (EntityB oldB : olds) {
+                        EntityB newB = oldB.clone();
+                        newB.setTitle(titlePrefix + newB.getTitle());
+                        newB.setCreatetime(OffsetDateTime.now());
+                        news.put(oldB.getId(), newB);
+                    }
+                    return daoUtils.mergeArchiving(log, conn, uuid, expire, olds, news);
                 }));
     }
 

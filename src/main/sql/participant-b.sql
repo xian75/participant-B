@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS participant_b.entity_b
 );
 
 -- Index: entity_b_id_idx
--- DROP INDEX participant_a.entity_b_id_idx;
+-- DROP INDEX participant_b.entity_b_id_idx;
 CREATE INDEX entity_b_id_idx ON participant_b.entity_b USING btree(id);
 
 -- Index: entity_b_event_uuid_idx

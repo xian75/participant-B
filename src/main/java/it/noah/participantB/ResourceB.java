@@ -73,12 +73,18 @@ public class ResourceB implements IParticipantServer {
             case "DELETE_ABC":
                 ABCEventDetails details2 = jsoner.getObject(data, ABCEventDetails.class);
                 return facade.deleteB(uuid, expire, details2.getEntityAId()).replaceWith(details2);
-            case "UPDATE_ABC":
+            case "LOGICAL_DELETE_ABC":
                 ABCEventDetails details3 = jsoner.getObject(data, ABCEventDetails.class);
-                return facade.updateB(uuid, expire, details3.getEntityAId(), details3.getTitlePrefix()).replaceWith(details3);
+                return facade.logicallyDeleteB(uuid, expire, details3.getEntityAId()).replaceWith(details3);
+            case "UPDATE_ABC":
+                ABCEventDetails details4 = jsoner.getObject(data, ABCEventDetails.class);
+                return facade.updateB(uuid, expire, details4.getEntityAId(), details4.getTitlePrefix()).replaceWith(details4);
+            case "UPDATE_ARCHIVING_ABC":
+                ABCEventDetails details5 = jsoner.getObject(data, ABCEventDetails.class);
+                return facade.updateArchivingB(uuid, expire, details5.getEntityAId(), details5.getTitlePrefix()).replaceWith(details5);
             case "READ_ALL_AB":
-                ABEventDetails details4 = jsoner.getObject(data, ABEventDetails.class);
-                List<Long> ids = details4.getItems().stream().map(c -> c.getA().getId()).collect(Collectors.toList());
+                ABEventDetails details6 = jsoner.getObject(data, ABEventDetails.class);
+                List<Long> ids = details6.getItems().stream().map(c -> c.getA().getId()).collect(Collectors.toList());
                 return facade.getAll(ids).map(objects -> {
                     Map<Long, List<ObjectB>> entitiesB = new HashMap<>();
                     objects.stream().forEach(e -> {
@@ -87,15 +93,15 @@ public class ResourceB implements IParticipantServer {
                         }
                         entitiesB.get(e.getEntityA()).add(e);
                     });
-                    details4.getItems().stream().filter(e -> entitiesB.containsKey(e.getA().getId()))
+                    details6.getItems().stream().filter(e -> entitiesB.containsKey(e.getA().getId()))
                             .forEach(e -> e.setBItems((List<ObjectB>) entitiesB.get(e.getA().getId())));
-                    return details4;
+                    return details6;
                 });
             case "READ_ONE_ABC":
-                SingleABCEventDetails details5 = jsoner.getObject(data, SingleABCEventDetails.class);
-                return facade.getByAId(details5.getEntityAId()).map(objects -> {
-                    details5.setBItems(objects);
-                    return details5;
+                SingleABCEventDetails details7 = jsoner.getObject(data, SingleABCEventDetails.class);
+                return facade.getByAId(details7.getEntityAId()).map(objects -> {
+                    details7.setBItems(objects);
+                    return details7;
                 });
             default:
                 return throwNoOperationFound(operation);
